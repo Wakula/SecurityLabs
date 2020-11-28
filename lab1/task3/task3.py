@@ -145,18 +145,21 @@ character_swap_maps = (
     sequence5_frequency,
     sequence6_frequency
 )
-if len(set(sequence6_frequency.values())) != len(sequence6_frequency):
-    raise Exception
-if len(set(sequence5_frequency.values())) != len(sequence6_frequency):
-    raise Exception
-if len(set(sequence4_frequency.values())) != len(sequence6_frequency):
-    raise Exception
-if len(set(sequence3_frequency.values())) != len(sequence6_frequency):
-    raise Exception
-if len(set(sequence2_frequency.values())) != len(sequence6_frequency):
-    raise Exception
-if len(set(sequence1_frequency.values())) != len(sequence6_frequency):
-    raise Exception
+
+
+def raise_error_if_not_unique_characters(seq):
+    seq = {k: v for k, v in seq.items() if v != '*'}
+    if len(seq) != len(set(seq.values())):
+        raise Exception
+
+
+raise_error_if_not_unique_characters(sequence1_frequency)
+raise_error_if_not_unique_characters(sequence2_frequency)
+raise_error_if_not_unique_characters(sequence3_frequency)
+raise_error_if_not_unique_characters(sequence4_frequency)
+raise_error_if_not_unique_characters(sequence5_frequency)
+raise_error_if_not_unique_characters(sequence6_frequency)
+
 
 CIPHER = (
     '1c41023f564b2a130824570e6b47046b521f3f5208201318245e0e6b40022643072e13183e51183f5a1f3e4702245d4b285a1b235619'
