@@ -7,6 +7,7 @@ def key_generator():
 
 
 def hack_xor_encrypted(message):
+    bytes(message, encoding=ENCODING)
     for key in key_generator():
         decoded_bytes = bytes(byte ^ key for byte in message)
         result = decoded_bytes.decode(ENCODING, errors='ignore')
