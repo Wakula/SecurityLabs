@@ -1,167 +1,49 @@
 from collections import defaultdict
-
+from itertools import product
+import math
 # MAP IS COPY PASTED FROM http://pi.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
 FREQUENCY_TABLE = {
-    'E': 12.02,
-    'T': 9.10,
-    'A': 8.12,
-    'O': 7.68,
-    'I': 7.31,
-    'N': 6.95,
-    'S': 6.28,
-    'R': 6.02,
-    'H': 5.92,
-    'D': 4.32,
-    'L': 3.98,
-    'U': 2.88,
-    'C': 2.71,
-    'M': 2.61,
-    'F': 2.30,
-    'Y': 2.11,
-    'W': 2.09,
-    'G': 2.03,
-    'P': 1.82,
-    'B': 1.49,
-    'V': 1.11,
-    'K': 0.69,
-    'X': 0.17,
-    'Q': 0.11,
-    'J': 0.10,
-    'Z': 0.07,
+    ' ': 13,
+    'e': 12.02,
+    't': 9.10,
+    'a': 8.12,
+    'o': 7.68,
+    'i': 7.31,
+    'n': 6.95,
+    's': 6.28,
+    'r': 6.02,
+    'h': 5.92,
+    'd': 4.32,
+    'l': 3.98,
+    # 'u': 2.88,
+    # 'c': 2.71,
+    # 'm': 2.61,
+    # 'f': 2.30,
+    # 'y': 2.11,
+    # 'w': 2.09,
+    # 'g': 2.03,
+    # 'p': 1.82,
+    # 'b': 1.49,
+    # 'v': 1.11,
+    # 'k': 0.69,
+    # 'x': 0.17,
+    # 'q': 0.11,
+    # 'j': 0.10,
+    # 'z': 0.07,
 }
 
-F7 = '7' # 53 !
-F1 = '1' # 46 !
-F2 = '2' # 28 !
-F13 = 'D' # 24 !
-F14 = 'E' # 21 !
-F15 = 'F' # 18 !
-F16 = 'G' # 17 !
-F5 = '5' # 15 !
-F11 = 'B' # 10 !
-
-
-F3 = '*' # 17
-F4 = '*' # 16
-F6 = '*'
-F8 = '*'
-F9 = '*'
-F10 = '*'
-F12 = '*'
-
-sequence1_frequency = {
-    '2': F1,  # 46.023
-    '3': F2,  # 28.977
-    '6': F3,  # 17.045
-
-    '0': 'u',  # 2.841
-    # TODO: try swap 'c' and 'm'
-    '1': 'c',  # 2.273
-    '7': 'm',  # 2.273
-
-    'c':  'k',  # 0.568
+TRIGRAMS_DISTRIBUTION = {
+    'the': 1.81,
+    'and': 0.73,
+    # 'tha': 0.33,
+    'ent': 0.42,
+    'ing': 0.72,
+    'ion': 0.42,
+    # 'tio': 0.31,
+    # 'for': 0.34,
+    # 'oft': 0.22,
+    # 'sth': 0.21,
 }
-sequence2_frequency = {
-    'b': F4,  # 16.477,
-    'f': F5,  # 15.341,
-    'e': F6,  # 11.364,
-
-    '8': "*",#'t',  # 9.659,
-    '2': "*",#'a',  # 9.091,
-    '4': "*",#'o',  # 7.955,
-    'c': "*",#'r',  # 5.114,
-    'a': "*",#'h',  # 4.545,
-    '6': "*",#'d',  # 4.545,
-    '5': "*",#'l',  # 3.977,
-    '7': "*",#'u',  # 3.409,
-    '9': "*",#'c',  # 3.409,
-    '3': "*",#'f',  # 2.273,
-    '0': "*",#'b',  # 1.136,
-    'd': "*",#'v',  # 1.136,
-    '1': "*",#'k',  # 0.568
-}
-sequence3_frequency = {
-    '5': F7,  # 53.143,
-    '4': F8,  # 24.0,
-    '1': F9,  # 17.143,
-
-    '6': "*",#'f',  # 2.286,
-    '7': "*",#'p',  # 1.714,
-    '0': "*",#'v',  # 1.143,
-    'a': "*",#'k',  # 0.571
-}
-sequence4_frequency = {
-    '3': F10,  # 15.429,
-    '6': F11,  # 10.286,
-
-    '7': "*",#'t',  # 9.714,
-    '0': "*",#'a',  # 9.143,
-    'a': "*",#'o',  # 9.143,
-    'd': "*",#'i',  # 7.429,
-    'c': "*",#'n',  # 6.857,
-    'f': "*",#'s',  # 6.286,
-    '1': "*",#'r',  # 5.714,
-    '4': "*",#'h',  # 5.714,
-    '2': '*',  # 4.571,
-    'b': '*',  # 4.571,
-    'e': '*',  # 2.286,
-    '5': '*',  # 1.143,
-    '9': '*',  # 1.143,
-    '8': '*',  # 0.571
-}
-sequence5_frequency = {
-    '0': F12,  # 48.0,
-    '1': F13,  # 24.0,
-    '4': F14,  # 21.714,
-
-    '2': '*',  # 2.857,
-    '3': '*',  # 1.714,
-    '5': '*',  # 1.143,
-    '8': '*',  # 0.571
-}
-sequence6_frequency = {
-    'b': F15,  # 18.857,
-    'e': F16,  # 17.143,
-
-    '4': '*',  # 9.143,
-    '8': '*',  # 8.571,
-    '2': '*',  # 8.0,
-    'f': '*',  # 6.857,
-    '9': '*',  # 6.857,
-    'a': '*',  # 6.857,
-    '7': '*',  # 6.286,
-    '5': '*',  # 3.429,
-    '3': '*',  # 3.429,
-    'c': '*',  # 2.286,
-    '1': '*',  # 0.571,
-    '0': '*',  # 0.571,
-    '6': '*',  # 0.571,
-    'd': '*',  # 0.571
-}
-
-character_swap_maps = (
-    sequence1_frequency,
-    sequence2_frequency,
-    sequence3_frequency,
-    sequence4_frequency,
-    sequence5_frequency,
-    sequence6_frequency
-)
-
-
-def raise_error_if_not_unique_characters(seq):
-    seq = {k: v for k, v in seq.items() if v != '*'}
-    if len(seq) != len(set(seq.values())):
-        raise Exception
-
-
-raise_error_if_not_unique_characters(sequence1_frequency)
-raise_error_if_not_unique_characters(sequence2_frequency)
-raise_error_if_not_unique_characters(sequence3_frequency)
-raise_error_if_not_unique_characters(sequence4_frequency)
-raise_error_if_not_unique_characters(sequence5_frequency)
-raise_error_if_not_unique_characters(sequence6_frequency)
-
 
 CIPHER = (
     '1c41023f564b2a130824570e6b47046b521f3f5208201318245e0e6b40022643072e13183e51183f5a1f3e4702245d4b285a1b235619'
@@ -176,19 +58,14 @@ CIPHER = (
     '4123c503e027e040c413428592406521a21420e184a2a32492072000228622e7f64467d512f0e7f0d1a'
 )
 
-RANDOM_COINCIDENCE_INDEX = 1 / 26
 
-
-def encode(message, key):
+def decode(message, key):
     def key_gen(key):
-        key_bytes = bytes(key, 'ASCII')
         while True:
-            for c in key_bytes:
-                yield c
-
+            for c in key:
+                yield ord(c)
     encoding_gen = key_gen(key)
-    message_bytes = bytes(message, 'ASCII')
-    return bytes(byte ^ next(encoding_gen) for byte in message_bytes).decode('utf-8')
+    return ''.join(chr(ord(char) ^ next(encoding_gen)) for char in message)
 
 
 def print_index_of_coincidence(cipher):
@@ -218,29 +95,80 @@ def print_index_of_coincidence(cipher):
 # 0.038825757575757576
 # 0.20833333333333334 < - this
 # So I suggest that the key consists of 6 characters
-# And thus key_len is len(CIPHER) / 6
-characters_in_key = 6
-key_len = len(CIPHER) / characters_in_key
+# key_len = 6
+KEY_LEN = 6
 
-swapped_sequences = []
-for shift in range(characters_in_key):
 
-    sequence = CIPHER[shift::characters_in_key]
-    mapping = defaultdict(lambda: 0)
+def get_characters_distribution(cipher, key_len):
+    distribution = []
+    for shift in range(key_len):
+        char_sequence = cipher[shift::key_len]
+        char_distribution = defaultdict(lambda: 0)
+        for char in char_sequence:
+            char_distribution[char] += 1
+        max_char = max(char_distribution, key=lambda char: char_distribution[char])
+        #char_distribution = {char: round(amount / len(char_sequence) * 100, 5) for char, amount in distribution.items()}
+        distribution.append(max_char)
+    return distribution
 
-    for char in sequence:
-        mapping[char] += 1
 
-    mapping = dict(sorted(mapping.items(), key=lambda char_amount: char_amount[1], reverse=True))
-    # print({char: round(amount / len(sequence) * 100, 3) for char, amount in mapping.items()})
-    ordered_sequence_characters = tuple(mapping)
-    frequency_characters = tuple(FREQUENCY_TABLE)
+def create_key(distribution, permutation):
+    return ''.join(chr(ord(char) ^ ord(swap_char)) for char, swap_char in zip(distribution, permutation))
 
-    swapped_sequences.append(''.join(character_swap_maps[shift][char] for char in sequence))
-decoded = ''.join(''.join(swapped_characters) for swapped_characters in zip(*swapped_sequences))
-print(decoded)
 
-# encoded = encode(
-#     'Adventure travel Time for an adventure? Are you a bit bored with your nine-to-five routine? Have a look at our exciting range of holidays and decide what type of adventure youd like.Activity holidays Our activity holidays are for everyone, people who love danger or who just like sports. We have a huge variety of water, snow or desert holidays. Well take you SCUBA diving in the Red Sea or kayaking and white water rafting in Canada. If you prefer snow, you can try skiing or snowboarding in the Alps or even igloo-building. For those who like warmer weather, we also have sandboarding (the desert version of skateboarding) or camel safaris.Polar expeditions Take a cruise to Antarctica or the northern Arctic; explore a land of white natural beauty and wonderful wildlife. Our experts will explain everything about the two poles as you watch the penguins in Antarctica or whales and polar bears in the Arctic. Theres no greater adventure than travelling to the ends of the earth. A once-in-a-lifetime experience!Cultural journeys Our cultural journeys will help you discover ancient civilisations: India, Thailand, Egypt and many more. Visit temples, palaces and ancient ruins  just remember to bring your camera! Get to know local ways of life by exploring markets, trying exotic foods and meeting local people.',
-#     key=key
-# )
+def calculate_deviation(actual, required):
+    return round(abs(required-actual) / required * 100)
+
+
+def get_distribution_deviation(actual, required):
+    deviation_sum = 0
+    for trigram, distribution in required.items():
+        deviation_sum += round(abs(distribution - actual.get(trigram, 0)) / distribution * 100)
+    return deviation_sum / len(required)
+
+
+deviations = defaultdict(lambda: 0)
+
+
+def is_text(text):
+    text = text.lower()
+    words_sequence = ''.join(text.split())
+    trigrams_distribution = defaultdict(lambda: 0)
+    trigrams = []
+
+    for char_index in range(len(words_sequence)):
+        trigram = words_sequence[char_index:char_index+3]
+        if len(trigram) == 3:
+            trigrams.append(trigram)
+    for trigram in trigrams:
+        trigrams_distribution[trigram] += 1
+    trigrams_distribution = {
+        trigram: amount / len(words_sequence) * 100 for trigram, amount in trigrams_distribution.items()
+        if trigram in TRIGRAMS_DISTRIBUTION
+    }
+    deviation = get_distribution_deviation(trigrams_distribution, TRIGRAMS_DISTRIBUTION)
+    if deviation < 60:
+        deviations[deviation] += 1
+        print(deviations)
+    return deviation
+
+
+def try_decode(cipher, key_len):
+    distribution = get_characters_distribution(CIPHER, KEY_LEN)
+    print(distribution)
+    # TODO: replace with FREQUENCY_TABLE
+    l = FREQUENCY_TABLE
+    tried_permutations = set()
+    for permutation in product(l, repeat=key_len):
+        if permutation in tried_permutations:
+            continue
+        tried_permutations.add(permutation)
+        key = create_key(distribution, permutation)
+        decoded = decode(cipher, key)
+        decoded = is_text(decoded)
+        if decoded < 60:
+            print(permutation)
+
+
+if __name__ == '__main__':
+    try_decode(CIPHER, KEY_LEN)
