@@ -32,19 +32,14 @@ FREQUENCY_TABLE = {
     # 'z': 0.07,
 }
 
-TRIGRAMS_DISTRIBUTION = {
-    'the': 1.81,
-    'and': 0.73,
-    # 'tha': 0.33,
-    'ent': 0.42,
-    'ing': 0.72,
-    'ion': 0.42,
-    # 'tio': 0.31,
-    # 'for': 0.34,
-    # 'oft': 0.22,
-    # 'sth': 0.21,
+MOST_COMMON_WORDS = {
+# 'of', 'to', 'in', 'it', 'is', 'be', 'as', 'at', 'so', 'we', 'he', 'by', 'or', 'on', 'do',
+# 'if', 'me', 'my', 'up', 'an', 'go', 'no', 'us', 'am',
+'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'any', 'can', 'had', 'her', 'was', 'one', 'our',
+'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new',
+'now', 'old', 'see', 'two,' 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use',
+'that', 'with', 'have', 'this', 'will', 'your', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time',
 }
-
 CIPHER = (
     '1c41023f564b2a130824570e6b47046b521f3f5208201318245e0e6b40022643072e13183e51183f5a1f3e4702245d4b285a1b235619'
     '65133f2413192e571e28564b3f5b0e6b50042643072e4b023f4a4b24554b3f5b0238130425564b3c564b3c5a0727131e38564b245d07'
@@ -133,24 +128,11 @@ deviations = defaultdict(lambda: 0)
 def is_text(text):
     text = text.lower()
     words_sequence = ''.join(text.split())
-    trigrams_distribution = defaultdict(lambda: 0)
-    trigrams = []
-
-    for char_index in range(len(words_sequence)):
-        trigram = words_sequence[char_index:char_index+3]
-        if len(trigram) == 3:
-            trigrams.append(trigram)
-    for trigram in trigrams:
-        trigrams_distribution[trigram] += 1
-    trigrams_distribution = {
-        trigram: amount / len(words_sequence) * 100 for trigram, amount in trigrams_distribution.items()
-        if trigram in TRIGRAMS_DISTRIBUTION
-    }
-    deviation = get_distribution_deviation(trigrams_distribution, TRIGRAMS_DISTRIBUTION)
-    if deviation < 60:
-        deviations[deviation] += 1
-        print(deviations)
-    return deviation
+    words_found = defaultdict(lambda: 0)
+    for word in MOST_COMMON_WORDS:
+        if word in words_sequence:
+            words_found[word] += 1
+    return sum(words_found.values(), 0)
 
 
 def try_decode(cipher, key_len):
@@ -158,6 +140,7 @@ def try_decode(cipher, key_len):
     print(distribution)
     # TODO: replace with FREQUENCY_TABLE
     l = FREQUENCY_TABLE
+    total = {}
     tried_permutations = set()
     for permutation in product(l, repeat=key_len):
         if permutation in tried_permutations:
@@ -165,10 +148,23 @@ def try_decode(cipher, key_len):
         tried_permutations.add(permutation)
         key = create_key(distribution, permutation)
         decoded = decode(cipher, key)
-        decoded = is_text(decoded)
-        if decoded < 60:
-            print(permutation)
+        words_found = is_text(decoded)
+        if words_found:
+            total[permutation] = words_found
+    print(dict(sorted(total.items(), key=lambda a: a[1])))
+
+
+def output_sequences(cipher, key_len):
+    DISTRIBUTION = ['2', 'b', '5', '3', '0', 'b']
+    for shift in range(0, 1):
+        shifted_sequence = cipher[shift::key_len]
+        for c in FREQUENCY_TABLE:
+            print(f"====================={shift}===========================")
+            print('key', c, ord(c))
+            print(decode(shifted_sequence, create_key((DISTRIBUTION[shift],), (c,))))
+            print("=================================================")
 
 
 if __name__ == '__main__':
     try_decode(CIPHER, KEY_LEN)
+    # output_sequences(CIPHER, KEY_LEN)
