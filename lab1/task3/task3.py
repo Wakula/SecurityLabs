@@ -45,6 +45,8 @@ CIPHER = (
     '4123c503e027e040c413428592406521a21420e184a2a32492072000228622e7f64467d512f0e7f0d1a'
 )
 
+CIPHER = ''.join(chr(int(CIPHER[i:i+2], base=16)) for i in range(0, len(CIPHER), 2))
+
 
 def decode(message, key):
     def key_gen(key):
@@ -68,22 +70,23 @@ def print_index_of_coincidence(cipher):
         print(match_rate)
 
 
-# Actually I just saw that in first several tries I get
-# 0.04924242424242424
-# 0.04734848484848485
-# 0.05965909090909091
-# 0.05397727272727273
-# 0.04071969696969697
-# 0.2178030303030303 <- this
-# 0.052083333333333336
-# 0.050189393939393936
-# 0.05397727272727273
-# 0.0625
-# 0.038825757575757576
-# 0.20833333333333334 < - this
-# So I suggest that the key consists of 6 characters
-# key_len = 6
-KEY_LEN = 6
+# Previous KEY_LEN = 6 appeared to be wrong because I did not know that original text was in Hex (TA ZA SHO???)
+# (I had to get an advise to know that it is in Hex)
+# After converting from Hex to bytes
+# 0.0
+# 0.0
+# 0.058935361216730035  ->
+# 0.0038022813688212928
+# 0.0038022813688212928
+# 0.049429657794676805  ->
+# 0.0076045627376425855
+# 0.0019011406844106464
+# 0.08365019011406843   ->
+# 0.0019011406844106464
+# 0.0019011406844106464
+# 0.06653992395437262   ->
+# After converting to bytes i suggest that KEY_LEN is 3
+KEY_LEN = 3
 
 
 def get_char_distribution(char_sequence):
@@ -107,55 +110,24 @@ def calculate_chi_squared(char_distribution: dict, char_sequence_len: int):
     return chi_squared_sum
 
 
-def try_decode(cipher, key_len):
-    from string import printable
-    char_sequences = split_text_to_char_sequences(CIPHER, KEY_LEN)
-    for sequence in char_sequences[1:2]:
-        key_to_chi_squared_statistics = {}
-        for key in range(256):
-            decoded_sequence = decode(sequence, chr(key))
-            if not all(c in printable for c in decoded_sequence) or not all(c in (' ', *FREQUENCY_TABLE) for c in decoded_sequence):
+def get_key(cipher, key_len):
+    char_sequences = split_text_to_char_sequences(cipher, key_len)
+    key = []
+    for sequence in char_sequences:
+        statistics = {}
+        for key_part in range(256):
+            decoded_sequence = decode(sequence, chr(key_part))
+            if not decoded_sequence:
                 continue
             sequence_len = len(decoded_sequence)
             char_distribution = get_char_distribution(decoded_sequence)
             chi_squared = calculate_chi_squared(char_distribution, sequence_len)
-            if len(sequence) != len(decoded_sequence):
-                continue
-            key_to_chi_squared_statistics[decoded_sequence] = chi_squared
-        s = sorted(key_to_chi_squared_statistics.items(), key=lambda item: item[1])
-        for i, statistics in s:
-            print(i)
-            print(statistics)
+            statistics[key_part] = chi_squared
+        key.append(min(statistics, key=lambda key_part: statistics[key_part]))
+    return ''.join(chr(key_part) for key_part in key)
 
 
 if __name__ == '__main__':
-    try_decode(CIPHER, KEY_LEN)
-
-    # k1 = (91, 123, 90, 122, 65, 97, 70)
-    # k2 = (91, 123, 90, 122, 93, 125, 65)
-    # k3 = (92, 124, 93, 125, 65, 97, 70)
-    # k4 = (95, 127, 94, 126, 64, 96, 91)
-    # k5 = (89, 121, 92, 124, 66, 98, 95)
-    # k6 = (91, 123, 92, 124, 90, 122, 95)
-    # res = []
-    # for a in k1:
-    #     for b in k2:
-    #         for c in k3:
-    #             for d in k4:
-    #                 for e in k5:
-    #                     for f in k6:
-    #                         key = ''.join(chr(k) for k in (a, b, c, d, e, f))
-    #                         decoded = decode(CIPHER, key).lower()
-    #                         chi = calculate_chi_squared(get_char_distribution(decoded), len(decoded))
-    #                         res.append((decoded, chi))
-    # print(sorted(res, key=lambda i: (i[1][1], i[1][0]))[:3])
-    # print(key)
-    # decoded = decode(CIPHER, key).lower()
-    # for s in range(KEY_LEN):
-    #     print(decoded[s::KEY_LEN])
-    # print(decoded)
-    # example = "%$$  %$$ $$%%%$$$ $$$% $$%$%%$%%$%$%%%%$%%%% %$  $!  %$ $$%%$$$ %$ $$ $%% $%%$$% $$$%$%$ $$ %%% $$$$$$$$$$$$%\"$% %$%$%$ %$ $$%$$$% %$  $ $$$$%%u  $%$% $ $$$$%$$&%&&$&$'%!$!!&"
-    # preformatted = preformat_sequence(example)
-    # char_distribution = get_char_distribution(preformatted)
-    # print(char_distribution)
-    # print(calculate_chi_squared(char_distribution, len(preformatted)))
+    # print_index_of_coincidence(CIPHER)
+    key = get_key(CIPHER, KEY_LEN)
+    print(decode(CIPHER, key))
