@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 
 CIPHER1 = 'ad924af7a9cdaf3a1bb0c3fe1a20a3f367d82b0f05f8e75643ba688ea2ce8ec88f4762fbe93b50bf5138c7b699'
 CIPHER2 = 'a59a0eaeb4d1fc325ab797b31425e6bc66d36e5b18efe8060cb32edeaad68180db4979ede43856a24c7d'
@@ -14,7 +16,8 @@ def from_hex_to_str(cipher):
 
 
 def xor_each(cipher1, cipher2):
-    return ''.join(chr(ord(char1) ^ ord(char2)) for char1, char2 in zip(cipher1, cipher2))
+    # return ''.join(chr(ord(char1) ^ ord(char2)) for char1, char2 in zip(cipher1, cipher2))
+    return tuple((ord(char1) ^ ord(char2)) for char1, char2 in zip(cipher1, cipher2))
 
 
 CIPHER_TEST_1 = from_hex_to_str(CIPHER1)
@@ -26,5 +29,24 @@ CIPHER_TEST_6 = from_hex_to_str(CIPHER6)
 CIPHER_TEST_7 = from_hex_to_str(CIPHER7)
 CIPHER_TEST_8 = from_hex_to_str(CIPHER8)
 
-for i in (CIPHER_TEST_2, CIPHER_TEST_3,CIPHER_TEST_4, CIPHER_TEST_5,CIPHER_TEST_6, CIPHER_TEST_7, CIPHER_TEST_8):
-    print(xor_each(CIPHER_TEST_1, i))
+CIPHERS = [
+    CIPHER_TEST_1, CIPHER_TEST_2, CIPHER_TEST_3, CIPHER_TEST_4,
+    CIPHER_TEST_5, CIPHER_TEST_6, CIPHER_TEST_7, CIPHER_TEST_8
+]
+# for i in (CIPHER_TEST_2, CIPHER_TEST_3,CIPHER_TEST_4, CIPHER_TEST_5,CIPHER_TEST_6, CIPHER_TEST_7, CIPHER_TEST_8):
+#     print(xor_each(CIPHER_TEST_1, i))
+suggested_key = defaultdict(set)
+
+
+for cipher in CIPHERS:
+    ciphers_to_xor = [c for c in CIPHERS if c != cipher]
+    for i in range(len(ciphers_to_xor) - 1):
+        xor1 = xor_each(cipher, ciphers_to_xor[i])
+        xor2 = xor_each(cipher, ciphers_to_xor[i+1])
+        for (char_pos, (i, j)) in enumerate(zip(xor1, xor2)):
+            space = ' '
+            if i >= 65 and j >= 65:
+                key_part = i ^ ord(space)
+                suggested_key[char_pos].add(key_part)
+
+print(suggested_key)
