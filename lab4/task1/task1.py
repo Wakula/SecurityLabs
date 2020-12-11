@@ -1,17 +1,32 @@
 import random
-from collections import defaultdict
+import sys
+LAB4_DIR = '/home/rukadelica/PycharmProjects/SecurityLabs/lab4/task1/'
+SECURITY_LABS_DIR = '/home/rukadelica/PycharmProjects/SecurityLabs/'
+
+RANDOM_PASSWORD_MIN_LENGTH = 10
+RANDOM_PASSWORD_MAX_LENGTH = 16
+RANDOM_PASSWORD_SYMBOLS_POOL = 'abcdefghijklmnopqrstuvwxyz1234567890/?.,!@*%'
+
+sys.path += [SECURITY_LABS_DIR, LAB4_DIR]
 
 
-# source: https://stackoverflow.com/questions/3540288/how-do-i-read-a-random-line-from-one-file
-def get_random_line_from_file(file):
-    line = next(file)
-    for num, aline in enumerate(file, 2):
-        if random.randrange(num):
-            continue
-        line = aline
-    return line
-d = defaultdict(int)
-for _ in range(100):
-    with open('most_common_1_000_000_passwords') as f:
-        d[get_random_line_from_file(f)] += 1
-print(d)
+def load_file_into_mem(file_name):
+    with open(f'{LAB4_DIR}{file_name}') as f:
+        return tuple(line.strip() for line in f)
+
+
+def generate_random_password(
+        min_length=RANDOM_PASSWORD_MIN_LENGTH,
+        max_length=RANDOM_PASSWORD_MAX_LENGTH,
+        symbols_pool=RANDOM_PASSWORD_SYMBOLS_POOL
+):
+    length = random.randint(min_length, max_length+1)
+    return ''.join(random.choice(symbols_pool) for _ in range(length))
+
+
+def generate_human_password():
+    pass
+
+
+hundred_passwords_pool = load_file_into_mem('hundred_passwords_pool')
+million_passwords_pool = load_file_into_mem('million_passwords_pool')
