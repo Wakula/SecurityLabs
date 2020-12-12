@@ -1,37 +1,37 @@
 import file_loaders
+import password_generators
 import random
 
+HUNDRED_PASSWORDS_POOL_CHANCE = tuple(percent for percent in range(1, 10 + 1))
+MILLION_PASSWORDS_POOL_CHANCE = tuple(percent for percent in range(1, 90 + 1))
+RANDOM_PASSWORDS_PERCENT_CHANCE = tuple(percent for percent in range(1, 5 + 1))
 
-def generate_passwords(amount):
+
+def generate_passwords(passwords_amount):
     hundred_passwords_pool = file_loaders.load_list_file_into_mem('common_passwords_pool/hundred_passwords')
     million_passwords_pool = file_loaders.load_list_file_into_mem('common_passwords_pool/million_passwords')
-    english_words_pool = file_loaders.load_list_file_into_mem('human_words_pool/english_words')
-    russian_words_pool = file_loaders.load_list_file_into_mem('human_words_pool/russian_words')
-    leetspeak_pool = file_loaders.load_dict_file_into_mem('leetspeak_pool/leetspeak')
+    human_password_factory = password_generators.HumanPasswordFactory()
 
+    generated_passwords = []
 
-generate_passwords(100)
-corelation = {
-        '5-10': 0,
-        '50-90': 0,
-        '1-5': 0,
-        'rest': 0,
-    }
-percent_5_10 = tuple(percent for percent in range(1, 10+1))
-percent_50_90 = tuple(percent for percent in range(1, 90+1))
-percent_1_5 = tuple(percent for percent in range(1, 5+1))
+    for _ in range(passwords_amount):
+        if random.randint(1, 100) in RANDOM_PASSWORDS_PERCENT_CHANCE:
+            generated_passwords.append(
+                password_generators.generate_random_password()
+            )
+        elif random.randint(1, 100) in HUNDRED_PASSWORDS_POOL_CHANCE:
+            generated_passwords.append(
+                random.choice(hundred_passwords_pool)
+            )
+        elif random.randint(1, 100) in MILLION_PASSWORDS_POOL_CHANCE:
+            generated_passwords.append(
+                random.choice(million_passwords_pool)
+            )
+        else:
+            generated_passwords.append(
+                human_password_factory.create_password()
+            )
+    return generated_passwords
 
-password_amount = 10000000
-for _ in range(password_amount):
-    if random.randint(1, 100) in percent_1_5:
-        corelation['1-5'] += 1
-    elif random.randint(1, 100) in percent_5_10:
-        corelation['5-10'] += 1
-
-    elif random.randint(1, 100) in percent_50_90:
-        corelation['50-90'] += 1
-
-    else:
-        corelation['rest'] += 1
-
-print({key: round(amount / password_amount * 100, 2) for key, amount in corelation.items()})
+generate_passwords(1000000)
+print('Done')
