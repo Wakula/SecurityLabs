@@ -1,3 +1,26 @@
+For 1 000 000 passwords I get the following distribution
+    10 % from 100 most common passwords list:
+        random choice on list of passwords
+    75 % from 1000000 most common passwords list:
+        random choice on list of passwords
+    5 % generated random passwords
+        receives min, max (10, 16) password len 'len' is random value between min, max including
+        randomly select characters 'len' amount of times from available character pool
+        combine into resulting string
+    10 % human-like generated passwords
+        Common behaviour:
+            receives min, max (1, 2) amount of words for a password
+            words for a password are selected from language words pool
+            concatenates words into one string
+            AFTER SPECIAL(Russian, English) STRATEGY
+            there is a chance that some letters turn to uppercase 'security' -> 'SeCUritY'
+        RUSSIAN STRATEGY(34010 words):
+            There is a chance that the letters will swap to QWERTY 'собака' -> 'cj,frf'
+            There is a chance that the letters will swap to english letters 'собака' -> 'sobaka'
+        ENGLISH STRATEGY(446551 words):
+            There is a chance that some sub strings will change to leet language 'grill' -> 'g12!ll'
+Sources:
+
 top 100 source https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt
 top 1 000 000 source https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt
 english words source https://raw.githubusercontent.com/dwyl/english-words/master/words.txt
