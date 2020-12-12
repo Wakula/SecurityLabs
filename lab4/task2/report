@@ -1,0 +1,67 @@
+link to passwords https://github.com/VladaZhmurkevych/cryptography-course/tree/main/lab4/part1
+
+Hardware used
+GeForce GTX 1060 6GB, 1518/6075 MB allocatable, 10MCU
+
+
+1. Cracking md5_hashes
+   https://github.com/VladaZhmurkevych/cryptography-course/blob/main/lab4/part1/MD5-hash.csv
+
+Brute force
+    hashcat -m 0 -a 3 -o cracked_md5.csv md5_hashes.csv
+
+
+    managed to recover 53161 password out of 1000000
+
+    with speed 4550.8 MH/s
+    It took 18 mins, 39 secs to break 53161 password with password len from 0 to 9
+
+Dictionary
+    https://crackstation.net/crackstation-wordlist-password-cracking-dictionary.htm 63941069 passwords
+    https://github.com/praetorian-inc/Hob0Rules/blob/master/wordlists/rockyou.txt.gz ~1.5 million passwords
+
+    Tried both dictionaries results look almost identical
+    When Trying to attack with only using dictionaries I get absolutely nothing.
+    When using together with rules (best64.rule, d3ad0ne.rule, dive.rule, rockyou-3000.rule)
+    results are better but it depends on the rule
+
+    The best result I got was ~400 passwords cracked.
+
+2. sha1 with salt
+   https://raw.githubusercontent.com/VladaZhmurkevych/cryptography-course/main/lab4/part1/SHA1_WITH_SALT-hash.csv
+
+    first need to parse file so that It can be managed by hashcat(salt on the next line after hash or vice versa)
+
+Brute force
+    compared to breaking md5 it is drastically slower. It took around 20 minutes to break passwords from  len 0 to 4
+    managed to crack 7001 password
+    hashcat -m 110 -a 3 sha1_prepared_for_hashcat.csv -o brute_force_sha1.csv -O
+
+    This is for sure because of salt usage, that increases amount of variations for brute force
+
+Not trying dictionary attack because it had no affect previously
+
+
+It looks like brute force leeds to discovering passwords that contain words, words+numbers, only numbers,
+wheres with dictionary search it manages to find words like (rat1Onal 0ccasI0ns).
+
+For this try it appeared that brute force manages to handle passwords better than dictionary search.
+But I think that it is an exception to the rule. Dictionary search is meant to be faster and more productive.
+
+
+RECOMMENDATIONS BASED ON EXPERIENCE:
+    1) which hashing scheme one should use in real life applications
+        services should use the most reliable, strong schemas that don`t have known critical vulnerabilities.
+        Right now there are three of them: scrypt, argon2, bcrypt
+        Probably the best idea would be to contact with specialists in this sphere and get their advise
+    2) which rules should one enforce on user passwords
+        One should stick to guidelines from authoritative sources like
+            https://www.solarwindsmsp.com/blog/nist-password-standards2
+        Because it is impossible to force users create really random and quite long passwords
+    3) I think that pwned passwords api checks are must have for any service that deals with passwords.
+
+
+Sources
+https://losst.ru/kak-polzovatsya-hashcat
+https://hashcat.net/wiki/doku.php?id=hashcat
+https://github.com/VladaZhmurkevych/cryptography-course/tree/main/lab4/part1
