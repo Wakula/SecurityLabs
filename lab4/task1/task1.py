@@ -12,7 +12,7 @@ ARGON_PASSWORDS_AMOUNT = 100000
 SHA1_PASSWORDS_AMOUNT = 1000000
 MDA5_PASSWORDS_AMOUNT = 1000000
 
-ARGON_FILE = 'argon2i_passwords.csv'
+ARGON_FILE = 'hashes_for_lab4_2/argon2i_passwords.csv'
 MD5_FILE = 'hashes_for_lab4_2/mda5_passwords.csv'
 SHA1_FILE = 'hashes_for_lab4_2/sha1_passwords.csv'
 
