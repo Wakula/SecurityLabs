@@ -1,8 +1,4 @@
-import csv
-
-
-def export_to_csv(file_name, data):
-    with open(file_name, "wb") as csv_file:
-        writer = csv.writer(csv_file, delimiter=',')
-        for line in data:
-            writer.writerow(line)
+def export_to_csv(file_name, lines):
+    with open(file_name, "w") as csv_file:
+        for line in lines:
+            csv_file.write(f'{line}\n')

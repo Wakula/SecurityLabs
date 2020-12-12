@@ -36,7 +36,7 @@ def create_argon2i_passwords(passwords):
     for password in passwords:
         argon_hash = argon2i.str(password.encode(ENCODING))
         data = argon_hash.split(b'$')
-        salt_hex = data[4]
-        password_hex = data[5]
+        salt_hex = data[4].decode('ascii')
+        password_hex = data[5].decode('ascii')
         hashed.append(f'salt={salt_hex}$hash={password_hex}')
     return hashed
