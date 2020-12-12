@@ -13,8 +13,8 @@ SHA1_PASSWORDS_AMOUNT = 1000000
 MDA5_PASSWORDS_AMOUNT = 1000000
 
 ARGON_FILE = 'argon2i_passwords.csv'
-MD5_FILE = 'mda5_passwords.csv'
-SHA1_FILE = 'sha1_passwords.csv'
+MD5_FILE = 'hashes_for_lab4_2/mda5_passwords.csv'
+SHA1_FILE = 'hashes_for_lab4_2/sha1_passwords.csv'
 
 
 def generate_passwords(passwords_amount):
