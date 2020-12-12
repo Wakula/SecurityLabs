@@ -10,10 +10,10 @@ RANDOM_PASSWORDS_PERCENT_CHANCE = tuple(percent for percent in range(1, 5 + 1))
 
 ARGON_PASSWORDS_AMOUNT = 100000
 SHA1_PASSWORDS_AMOUNT = 1000000
-MDA5_PASSWORDS_AMOUNT = 1000000
+MD5_PASSWORDS_AMOUNT = 1000000
 
 ARGON_FILE = 'hashes_for_lab4_2/argon2i_passwords.csv'
-MD5_FILE = 'hashes_for_lab4_2/mda5_passwords.csv'
+MD5_FILE = 'hashes_for_lab4_2/md5_passwords.csv'
 SHA1_FILE = 'hashes_for_lab4_2/sha1_passwords.csv'
 
 
@@ -46,9 +46,9 @@ def generate_passwords(passwords_amount):
 
 if __name__ == '__main__':
     argon_passwords = generate_passwords(ARGON_PASSWORDS_AMOUNT)
-    mda5_passwords = generate_passwords(MDA5_PASSWORDS_AMOUNT)
+    md5_passwords = generate_passwords(MD5_PASSWORDS_AMOUNT)
     sha1_passwords = generate_passwords(SHA1_PASSWORDS_AMOUNT)
 
     csv_handler.export_to_csv(ARGON_FILE, password_hashing.create_argon2i_passwords(argon_passwords))
-    csv_handler.export_to_csv(MD5_FILE, password_hashing.create_mda5_passwords(mda5_passwords))
+    csv_handler.export_to_csv(MD5_FILE, password_hashing.create_md5_passwords(md5_passwords))
     csv_handler.export_to_csv(SHA1_FILE, password_hashing.create_sha1_with_salt(sha1_passwords))

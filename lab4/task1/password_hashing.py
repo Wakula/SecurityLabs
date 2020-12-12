@@ -27,7 +27,7 @@ def create_sha1_with_salt(passwords):
     return hashed
 
 
-def create_mda5_passwords(passwords):
+def create_md5_passwords(passwords):
     return [hashlib.md5(password.encode(ENCODING)).hexdigest() for password in passwords]
 
 
